@@ -1,39 +1,38 @@
 \name{getVariables}
 \alias{getVariables}
-%- Also NEED an '\alias' for EACH other topic documented here.
+\alias{getConstraints}
+\alias{getObjective}
 \title{
-getVariable
+Get the solved model
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+getVariables get the variables form a solved model, getConstraints get the value and shadow values of the constraints from a solved model and getObjective returns the objective from a solved model.
 }
 \usage{
-g(x, y)
+getVariables(model)
+getConstraints(model)
+getObjective(model)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{
-%%     ~~Describe \code{x} here~~
-}
-  \item{y}{
-%%     ~~Describe \code{y} here~~
+  \item{model}{
+A solved lpParser model
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\code{getVariable} returns a named list of arrays. The names correspond to the variables names and the dimension of the arrays corresponds to the dissing of the respective variables.
+
+\code{getVariable} returns a name list of data.frames. The names corresponds to the constraints  names and the data frame have the following properties: row names corresponds to the number of the constraint, one column for each of the indices of the constraint named according to the constraint, one column named value giving the value of the constraint, and one column called lambda giving the shadow value of the constraint (the value of the constraint in the dual solution)
+
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Lars Ravn-Jonsen
 }
 \note{
 %%  ~~further notes~~
@@ -42,17 +41,41 @@ g(x, y)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+\code{\link{Index}}, \code{\link{Variable}}, \code{\link{Constant}}, \code{\link{Equation}}, \code{\link{Sense}}, \code{\link{Bounds}}, \code{\link{Solve}}}
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--  or do  help(data=index)  for the standard data sets.
+model <- lpParser()
 
-## The function is currently defined as
-function (x, y) 
-x - y
-}
+n=10 #reduced model in time dimension
+Index(model) <- list(time = 1:n, tecnology = c('A', 'B', 'C', 'D'))
+
+Constant(model) <- list(
+      demand = c('time'), 
+      capacity = c('tecnology'),
+      cost = 'tecnology',
+      rampUp = 'tecnology',
+      rampDown ='tecnology'
+)
+
+setConstant(model) <- list(demand = demand[1:n], 
+     capacity = powerPlants$Capacity,
+     cost = rowSums(powerPlants[,c('opmain', 'fuelcost')]),
+     rampUp = powerPlants$Rampup,
+     rampDown = powerPlants$Rampdown)
+     
+Variable(model) <- list(production = c('time', 'tecnology'))
+
+Equation(model) <- c('Demand(time); production >= demand')
+Equation(model) <- c('Capacity(time,tecnology);  production <= capacity')
+Equation(model) <- c('RampUp(time[1:(n-1)],tecnology); production[2:n] - production[1:(n-1)] <= rampUp')
+Equation(model) <- c('RampDown(time[1:(n-1)],tecnology); production[2:n] - production[1:(n-1)] >= rampDown')
+
+Object(model) <- 'cost * production'
+
+Solve(model)
+
+getVariables(model)
+getConstraints(model)
+getObjective(model)
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }

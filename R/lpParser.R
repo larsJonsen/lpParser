@@ -257,23 +257,23 @@ setMethod(
   definition=function(object, ...){
     env = parent.frame()
     objectName <- as.character(as.list(match.call())[['object']]) 
-    object@lplpParser = make.lp(nrow = object@eqLength, ncol = object@varLength)
-    set.rhs(object@lplpParser, object@eqRhs)
-    set.constr.type(object@lplpParser, object@eqType)
+    object@lpModel = make.lp(nrow = object@eqLength, ncol = object@varLength)
+    set.rhs(object@lpModel, object@eqRhs)
+    set.constr.type(object@lpModel, object@eqType)
     con = lhsMatrix(object)
     for (i in seq(object@varLength)){
-      set.column(object@lplpParser, i,
+      set.column(object@lpModel, i,
                  con@x[(con@p[i]+1):con@p[i+1]],
                  indices=con@i[(con@p[i]+1):con@p[i+1]]+1)
     }
-    set.objfn(object@lplpParser, object@obj@x, object@obj@i)
-    do.call(set.bounds, c(list(object@lplpParser),Bounds(object)))
-    lp.control(object@lplpParser, sense= object@sense)
-    object@status = solve(object@lplpParser)
+    set.objfn(object@lpModel, object@obj@x, object@obj@i)
+    do.call(set.bounds, c(list(object@lpModel),Bounds(object)))
+    lp.control(object@lpModel, sense= object@sense)
+    object@status = solve(object@lpModel)
     cat(paste( 'Status rescived from lpSolve:', object@status, '\n ',
                .message[object@status + 1]))
     if (object@status==0){
-      primal = get.primal.solution(object@lplpParser)
+      primal = get.primal.solution(object@lpModel)
       object@objective = primal[1]
       object@varVector = primal[(2+object@eqLength):length(primal)]
       eqVal = primal[2:(1+object@eqLength)]
@@ -286,7 +286,7 @@ setMethod(
         names(namList) = object@indexNames[object@varIndex[[1]]]
         dimnames(object@varArrays[[i]]) = namList}
       
-      dual = get.dual.solution(object@lplpParser)
+      dual = get.dual.solution(object@lpModel)
       eqLambda = dual[2: (1+object@eqLength)]
       for (i in seq(along = object@eqList)){
         object@eqList[[i]]$value = eqVal[as.numeric(rownames(object@eqList[[i]]))]
@@ -325,14 +325,23 @@ setMethod(
   }
 )
 
+setGeneric("getObjective",function(object, ...){standardGeneric("getObjective")})
 
+setMethod(
+  f="getObjective",
+  signature="lpParser",
+  definition=function(object, ...){
+    if (.checkSolution(object)) return(get.objective(object@lpModel))
+    invisible(NULL)
+  }
+)
 setGeneric("Bounds",function(object, ...){standardGeneric("Bounds")})
 
 setMethod(
   f="Bounds",
   signature="lpParser",
   definition=function(object, ...){
-    if(!is.null(object@status)) if(object@status == 0) return(get.bounds(object@lplpParser))
+    if(!is.null(object@status)) if(object@status == 0) return(get.bounds(object@lpModel))
     lower = rep(0, object@varLength)
     upper = rep(Inf, object@varLength)
   lapply(object@boundsList, function(x){

@@ -69,5 +69,6 @@ Equation(model) <- c('RampDown(time[1:(n-1)],tecnology); production[2:n] - produ
 Object(model) <- 'cost * production'
 
 Solve(model)
+}
 \keyword{ ~kwd1 }
 \keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
