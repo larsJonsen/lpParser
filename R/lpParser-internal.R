@@ -1,3 +1,5 @@
+require(lpSolveAPI)
+
 lpParser <- setClass(
   'lpParser', 
   slots = c(indexDim = 'numeric', 
@@ -23,7 +25,7 @@ lpParser <- setClass(
     eqLhs = 'matrix',
     eqType = 'numeric',
     obj = 'dsparseVector',
-    lpModel = 'lpExtPtr',
+    lpModel = 'ANY',
     status = 'numeric',
     objective = 'numeric',
     varVector = 'numeric',
@@ -249,7 +251,7 @@ setMethod(f = '.makeObjItems',
           signature = 'lpParser',
           definition = function(object, factItem){
             with(as.list(factItem), {
-              objItem = sparseVector(x=0, i =1, length=object@varLength)
+              objItem =  Matrix::sparseVector(x=0, i =1, length=object@varLength)
               # variable
               varNr = match(variable, object@varNames)
               .stopifnot(!is.na(varNr), text = paste('Left hand variable:', variable, 'not recornsied'))
@@ -291,7 +293,7 @@ setMethod(f = '.makeObjItems',
           signature = 'lpParser',
           definition = function(object, factItem){
             with(as.list(factItem), {
-              objItem = sparseVector(x=0, i =1, length=object@varLength)
+              objItem =  Matrix::sparseVector(x=0, i =1, length=object@varLength)
               # variable
               varNr = match(variable, object@varNames)
               .stopifnot(!is.na(varNr), text = paste('Left hand variable:', variable, 'not recornsied'))

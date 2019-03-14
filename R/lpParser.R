@@ -147,7 +147,7 @@ setReplaceMethod(
                 text = 'Constant index not in declared indexs ') 
       object@constDim = object@constDim + 1
       object@constNames = c(object@constNames, Cname[i])
-      object@constIndex[[object@constDim]] = sort(match(const[[i]], object@indexNames))
+      object@constIndex[[object@constDim]] = match(const[[i]], object@indexNames)
       object@constList[[object@constDim]] = array(NA, object@indexLength[object@constIndex[[object@constDim]]])
     }
     return (object)
@@ -255,6 +255,7 @@ setMethod(
   f="Solve",
   signature="lpParser",
   definition=function(object, ...){
+    require(lpSolveAPI)
     env = parent.frame()
     objectName <- as.character(as.list(match.call())[['object']]) 
     object@lpModel = make.lp(nrow = object@eqLength, ncol = object@varLength)
