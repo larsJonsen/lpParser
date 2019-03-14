@@ -17,7 +17,7 @@ Solve(model)
 }
 }
 \details{
-When index, constants, variables and equations are set then the model can be solved by lpSolve by calling \code{Solve()}. Note that if Sense is not called the model is assumed to be minimized and if Bounds is not called all variables is assumed $\geq 0$
+When index, constants, variables and equations are set then the model can be solved by lpSolve by calling \code{Solve()}. Note that if Sense is not called the model is assumed to be minimized and if Bounds is not called all variables is assumed \eqn{latex}{\ge 0}
 }
 \value{
 Solved modifies the original object if successfully solved. The function will add to the slots in the model. As a security the model is returned invisibly; a standard replacement of the model will work as well.

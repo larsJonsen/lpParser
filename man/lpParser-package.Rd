@@ -11,7 +11,7 @@ Interface to linear programming models. The package supply functions to parse a 
 \tabular{ll}{
 Package: \tab lpParser\cr
 Type: \tab Package\cr
-Version: \tab 0.1\cr
+Version: \tab 0.1.1\cr
 Date: \tab 2014-02-08\cr
 License: \tab GPL\cr
 }
